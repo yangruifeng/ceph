@@ -101,7 +101,6 @@ class MDS : public MDSRank, public Dispatcher, public md_config_obs_t {
   Messenger    *messenger;
   MonClient    *monc;
   MDSMap       *mdsmap;
-  Objecter     *objecter;
   LogClient    log_client;
   LogChannelRef clog;
 
