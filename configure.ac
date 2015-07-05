@@ -494,8 +494,9 @@ AC_ARG_WITH([fuse],
             [],
             [with_fuse=yes])
 LIBFUSE=
-AS_IF([test "x$with_fuse" != xno],
-	    [AC_CHECK_LIB([fuse], [fuse_main],
+if test "x$with_fuse" != xno; then
+  AS_IF([test x"$linux" = x"yes"],
+	AC_CHECK_LIB([fuse], [fuse_main],
              [AC_SUBST([LIBFUSE], ["-lfuse"])
                AC_DEFINE([HAVE_LIBFUSE], [1],
                          [Define if you have fuse])
@@ -508,6 +509,21 @@ AS_IF([test "x$with_fuse" != xno],
               ],
              [AC_MSG_FAILURE(
                    [no FUSE found (use --without-fuse to disable)])])])
+  AS_IF([test x"$darwin" = x"yes"],
+	AC_CHECK_LIB([osxfuse], [fuse_main],
+             [AC_SUBST([LIBFUSE], ["-losxfuse"])
+               AC_DEFINE([HAVE_LIBFUSE], [1],
+                         [Define if you have fuse])
+               HAVE_LIBFUSE=1
+	       # look for fuse_getgroups and define FUSE_GETGROUPS if found
+           LIBS_saved="$LIBS"
+           LIBS="$LIBS -losxfuse"
+	       AC_CHECK_FUNCS([fuse_getgroups])
+           LIBS="$LIBS_saved"
+              ],
+             [AC_MSG_FAILURE(
+                   [no FUSE found (use --without-fuse to disable)])])])
+fi
 AM_CONDITIONAL(WITH_FUSE, [test "$HAVE_LIBFUSE" = "1"])
 
 # jemalloc?
